@@ -1,5 +1,7 @@
 ---
 title: "gitalong-core-dag"
+icon: material/git
+statistics: true
 ---
 
 # Merkle DAG Implementation
@@ -130,7 +132,7 @@ Appends a new node as the child of a specified set of nodes.
 0. **Validate**: All parents must exist, context_ref must point to a valid node if not null.
 1.  **Hash Content**: Calculate `content_hash = SHA256(content_blob)`.
 2.  **Store Data**: Save the blob into the `blobs` table using its hash as the primary key.
-3.  **Link Node**: Calculate `node_hash = SHA256(parent_hashes + content_hash)`.
+3.  **Link Node**: Calculate `node_hash = SHA256(parent_hashes + content_hash)` (read: (Hash Canonicalization)[#hash-canonicalization])
 4.  **Commit**: Save the record to the `nodes` table.
 
 #### Arguments
@@ -162,3 +164,11 @@ These are all of the methods that our Merkle tree needs in order to fulfill all 
 Not only is it simple, it would allow the implementation to have greater control unlike with Git.
 
 It is imperative that the table remains append-only, still allowing nodes to be hollowed out through redactions.
+
+## Note on Hash Canonicalization
+
+In this spec, + is a shorthand for append. `sha256("cat" + "dog")` means that we will get the hash of `catdog` in that order.
+
+When we want to flatten an array for things like hashing functions, we will append the elements in the same manner. The array `["cat", "dog"]` may be flattened to `catdog`.
+
+**IMPORTANT**: The elements of the arrays MUST be sorted in lexicographic ascending order before concatenation, implementations that don't do this will produce divergent hashes for identical logical nodes and silently break sync.

@@ -1,6 +1,6 @@
 ---
-title: "gitalong-ext-chat"
-icon: material/chat-plus
+title: "gitalong-ext-ident"
+icon: material/identifier
 statistics: true
 ---
 

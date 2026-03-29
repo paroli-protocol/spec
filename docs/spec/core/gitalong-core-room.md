@@ -1,5 +1,7 @@
 ---
 title: "gitalong-core-room"
+icon: material/door
+statistics: true
 ---
 
 # The Room 

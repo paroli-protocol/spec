@@ -1,5 +1,7 @@
 ---
 title: "gitalong-core-sync"
+icon: material/sync
+statistics: true
 ---
 
 # Synchronization (Three-Pass Protocol)
