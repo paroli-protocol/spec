@@ -1,12 +1,12 @@
 ---
-title: "gitalong-core-sync"
-icon: material/sync
+title: "paroli-core-sync"
+icon: material/sync-circle
 statistics: true
 ---
 
 # Synchronization (Three-Pass Protocol)
 
-To ensure maximum security and bandwidth efficiency, Gitalong uses a stateless three-pass sync. Let's say that Alice wants to syncronize data from Bob:
+To ensure maximum security and bandwidth efficiency, Paroli uses a stateless three-pass sync. Let's say that Alice wants to syncronize data from Bob:
 
 ## Pass 1: Discovery (Bottom-Up)
 **Direction:** Latest -> Common Ancestor

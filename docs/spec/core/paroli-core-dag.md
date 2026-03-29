@@ -1,6 +1,6 @@
 ---
-title: "gitalong-core-dag"
-icon: material/git
+title: "paroli-core-dag"
+icon: material/sitemap
 statistics: true
 ---
 
@@ -10,9 +10,9 @@ statistics: true
 
 ### What is it?
 
-An implementation of a Merkle DAG, which is a data structure used in Gitalong to represent rooms and their trees.
+An implementation of a Merkle DAG, which is a data structure used in Paroli to represent rooms and their trees.
 
-You may think of it as the storage layer of Gitalong, providing a way to structure and persist data. Though an implementation of `gitalong-core-dag` can and is even encouraged to be Gitalong-agnostic.
+You may think of it as the storage layer of Paroli, providing a way to structure and persist data. Though an implementation of `paroli-core-dag` can and is even encouraged to be Paroli-agnostic.
 
 ### What does it do?
 
@@ -159,7 +159,7 @@ Retrieves the node and its associated blob. If the blob has been redacted, the i
 
 ---
 
-These are all of the methods that our Merkle tree needs in order to fulfill all of the requirements of Gitalong.
+These are all of the methods that our Merkle tree needs in order to fulfill all of the requirements of Paroli.
 
 Not only is it simple, it would allow the implementation to have greater control unlike with Git.
 

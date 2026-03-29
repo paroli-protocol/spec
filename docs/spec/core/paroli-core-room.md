@@ -1,6 +1,6 @@
 ---
-title: "gitalong-core-room"
-icon: material/door
+title: "paroli-core-room"
+icon: material/door-open
 statistics: true
 ---
 
@@ -10,7 +10,7 @@ statistics: true
 
 ### What is it?
 
-A room is a collection of trees in a Gitalong **Merkle DAG** working together to offer functionality.
+A room is a collection of trees in a Paroli **Merkle DAG** working together to offer functionality.
 
 ### What does it do?
 
@@ -18,15 +18,15 @@ It is a local-only representation of a room. It defines interfaces for interacti
 
 ### How does it do it?
 
-By using a Merkle DAG instance provided by a [gitalong-core-dag](gitalong-core-dag) implementation. A room implementation wraps around this instance and provides a higher-level API for interacting with the room.
+By using a Merkle DAG instance provided by a [paroli-core-dag](paroli-core-dag) implementation. A room implementation wraps around this instance and provides a higher-level API for interacting with the room.
 
-A room begins with the `state` tree, acting as the "main" tree and source of truth for the room. Its job is to define everything related to the room (title, permissions, membership), room metadata, and metadata (room configuration, [power levels](../../ext/gitalong-ext-powerlevels)...).
+A room begins with the `state` tree, acting as the "main" tree and source of truth for the room. Its job is to define everything related to the room (title, permissions, membership), room metadata, and metadata (room configuration, [power levels](../../ext/paroli-ext-acl)...).
 
 Any other trees in the room are **fully optional**, and thus are required to specify a reference to the latest state tree node for each new node.
 
 A chat room, for example, will have a state tree (what the room is, who joined, who is banned). This is the *main* tree. But additionally, it will have a **timeline tree** (the messages). Since the timeline tree is not a main tree, every node needs to hold a reference of the latest state node that the author knew of when appending it.
 
-This approach makes Gitalong mostly resistant to state-lag attacks, where an attacker tries to manipulate the room state by appending events before the room has caught up with the latest state.
+This approach makes Paroli mostly resistant to state-lag attacks, where an attacker tries to manipulate the room state by appending events before the room has caught up with the latest state.
 
 ### Examples
 

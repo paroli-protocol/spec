@@ -1,6 +1,6 @@
 ---
-title: "gitalong-core-session"
-icon: material/key
+title: "paroli-core-session"
+icon: material/laptop
 statistics: true
 ---
 
@@ -10,11 +10,11 @@ statistics: true
 
 ### What is it?
 
-A session is the cryptographic identity primitive of Gitalong. It is the root of all authorship and trust in the protocol.
+A session is the cryptographic identity primitive of Paroli. It is the root of all authorship and trust in the protocol.
 
 ### What does it do?
 
-A session represents a single device or client instance capable of authoring and signing events. It is the atomic unit of identity in Gitalong, higher level identity constructs (see `gitalong-ext-identity`) are built on top of sessions, but on a lower level, the protocol itself only ever deals with sessions directly.
+A session represents a single device or client instance capable of authoring and signing events. It is the atomic unit of identity in Paroli, higher level identity constructs (see `paroli-ext-identity`) are built on top of sessions, but on a lower level, the protocol itself only ever deals with sessions directly.
 
 ### How does it do it?
 
@@ -34,7 +34,7 @@ A session consists of two components:
 Sessions are generated locally by the client. No coordination or registration is required to create a valid session.
 
 !!! warning
-    The private key must never leave the device. Loss of the private key means loss of the session with no recovery path at the session level. Recovery mechanisms are out of scope for `gitalong-core-session` and will be defined in `gitalong-ext-identity`.
+    The private key must never leave the device. Loss of the private key means loss of the session with no recovery path at the session level. Recovery mechanisms are out of scope for `paroli-core-session` and will be defined in `paroli-ext-identity`.
 
 ## Signing
 
@@ -85,13 +85,13 @@ The signature MUST be included in the blob alongside the event content:
 ```
 
 !!! note
-    Signature verification is the responsibility of the consumer (notably, [gitalong-core-room](gitalong-core-room)). `gitalong-core-session` only defines how to produce and verify signatures.
+    Signature verification is the responsibility of the consumer (notably, [paroli-core-room](paroli-core-room)). `paroli-core-session` only defines how to produce and verify signatures.
 
 ## Non-Goals
 
-`gitalong-core-session` explicitly does not define:
+`paroli-core-session` explicitly does not define:
 
-- How sessions gain membership in rooms (job of `gitalong-core-room`)
-- How multiple sessions are grouped into a single human identity (job of `gitalong-ext-identity`)
-- Key rotation or recovery (job of `gitalong-ext-identity`)
+- How sessions gain membership in rooms (job of `paroli-core-room`)
+- How multiple sessions are grouped into a single human identity (job of `paroli-ext-identity`)
+- Key rotation or recovery (job of `paroli-ext-identity`)
 - Session discovery or lookup

@@ -1,13 +1,13 @@
 ---
-title: "gitalong-ext-powerlevels"
-icon: material/shield
+title: "paroli-ext-acl"
+icon: material/shield-account
 statistics: true
 ---
 
 # Power levels
 
 !!! info "Development Roadmap"
-    This extension is currently tethered to the completion of `gitalong-core-*`. When it reaches a stable form, we will begin working on it.
+    This extension is currently tethered to the completion of `paroli-core-*`. When it reaches a stable form, we will begin working on it.
 
 ## Overview
 
