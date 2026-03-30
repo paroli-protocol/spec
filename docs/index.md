@@ -13,6 +13,7 @@ Paroli is an **opinionated**, **truly distributed**, **non-linear** chat protoco
 ## What makes it different?
 
 We hate complexity. That's why Paroli uses a simple append-only Merkle DAG inspired by Git to keep a decentralized timeline of a chat, over the Gossip protocol. Here is what Paroli aims to be:
+
 - **Simple by design**: trusted technologies, hate complexity
 - **Sovereign**: control over your data, redaction, privacy
 - **Built to scale**: efficiency, resilience, distribution

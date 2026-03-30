@@ -77,11 +77,14 @@ A message is just a new node appended to the latest one, in the `contents` field
 A simple plaintext (?) message.
 
 ####### Fields
+
 - `body`: The body of the text message.
 - `time`: The time (in Unix Epoch) that the message was sent.
 
 ###### m.redact
+
 **WARNING: OUT OF SCOPE FOR MVP**
+
 - `hash`: The hash of the message we want to redact.
 
 ##### Sending

@@ -27,6 +27,7 @@ Though the technical details are up to the implementation, we will provide high-
 Our implementation focuses on structural integrity while allowing for data privacy. We will separate the "Skeleton" (Nodes) from the "Meat" (Blobs). This allows us to redact message content without breaking the cryptographic chain.
 
 It needs to:
+
 - Support multiple trees per instance, each identified by their respective root node's hash.
 - Be *strictly* append-only (with the exception of redaction).
 - Keep nodes (cryptographic relationship) and blobs (event contents) separate.
@@ -37,6 +38,7 @@ It needs to:
 We maintain two distinct things: **nodes and blobs**. The nodes are the trees. These will be the actual Merkle DAGs, an the immutable skeleton of the instances. Meanwhile, the blobs are the contents of events.
 
 A node holds the following information:
+
 - **hash**: The hash of the node itself.
 - **parents**: The hashes of the parent nodes (remember: a node can have multiple parents).
 - **content_ref**: The hash of the blob containing the event content.

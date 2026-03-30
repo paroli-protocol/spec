@@ -9,6 +9,7 @@ statistics: true
 To ensure maximum security and bandwidth efficiency, Paroli uses a stateless three-pass sync. Let's say that Alice wants to syncronize data from Bob:
 
 ## Pass 1: Discovery (Bottom-Up)
+
 **Direction:** Latest -> Common Ancestor
 **Goal:** Identify the gap between Alice and Bob.
 * Alice requests the parent of Bob's latest `node_hash`.
@@ -19,6 +20,7 @@ To ensure maximum security and bandwidth efficiency, Paroli uses a stateless thr
     Alice needs to know in advance the latest node they have in common.
 
 #### Pass 2: The Skeleton (Top-Down)
+
 **Direction:** Common Ancestor → Latest
 **Goal:** Verify structural integrity (Orphan Protection).
 * Alice requests the nodes in order, starting from the common ancestor's child.

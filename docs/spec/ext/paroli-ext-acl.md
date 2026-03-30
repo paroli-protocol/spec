@@ -12,6 +12,7 @@ statistics: true
 ## Overview
 
 We will implement ACLs via RBAC, where roles are just hashes (no special meaning, just identifiers), sessions or identities can be assigned roles, and the room defines actions with:
+
 - a whitelist of roles/users allowed to perform that action
 - a blacklist of roles/users forbidden from performing it
 
