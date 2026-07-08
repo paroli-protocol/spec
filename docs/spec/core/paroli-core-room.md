@@ -6,29 +6,27 @@ statistics: true
 
 # The Room 
 
-## Overview
-
-### What is it?
+## What is it?
 
 A room is a collection of trees in a Paroli **Merkle DAG** working together to offer functionality.
 
-### What does it do?
+## What does it do?
 
 It is a local-only representation of a room. It defines interfaces for interacting with it, mainly appending events. It is completely network-agnostic and may even be used offline. A room implementation isn't very useful by itself, mainly serving as a building block for a higher-level implementation.
 
-### How does it do it?
+## How does it do it?
 
-By using a Merkle DAG instance provided by a [paroli-core-dag](paroli-core-dag) implementation. A room implementation wraps around this instance and provides a higher-level API for interacting with the room.
+By using a Merkle DAG instance provided by a [paroli-core-dag](paroli-core-dag) implementation. A room wraps around this instance to provide a higher-level abstraction for interacting with a logical room.
 
-A room begins with the `state` tree, acting as the "main" tree and source of truth for the room. Its job is to define everything related to the room (title, permissions, membership), room metadata, and metadata (room configuration, [power levels](../../ext/paroli-ext-acl)...).
+A room begins with the `state` tree, acting as the "main" tree and source of truth for the room. Its job is to define everything related to the room like room metadata, configuration, membership, or even things like [power levels](../../ext/paroli-ext-acl).
 
-Any other trees in the room are **fully optional**, and thus are required to specify a reference to the latest state tree node for each new node.
+Any other trees in the room are **fully optional**, and are required to specify a reference to the latest state tree node for each new node.
 
-A chat room, for example, will have a state tree (what the room is, who joined, who is banned). This is the *main* tree. But additionally, it will have a **timeline tree** (the messages). Since the timeline tree is not a main tree, every node needs to hold a reference of the latest state node that the author knew of when appending it.
+A chat room, for example, will have a state tree (what the room is, who joined, who is banned). This is the *main* tree; and it will also have a **timeline tree** containing the messages. Since the timeline tree is not a main tree, every node needs to hold a reference of the latest state node that the author knew of when appending it.
 
 This approach makes Paroli mostly resistant to state-lag attacks, where an attacker tries to manipulate the room state by appending events before the room has caught up with the latest state.
 
-### Examples
+## Examples
 
 !!! example "Linear history (simple)"
     --8<-- "includes/diagram-linear.mmd"
@@ -36,76 +34,63 @@ This approach makes Paroli mostly resistant to state-lag attacks, where an attac
 !!! example "Forked history (complex)"
     --8<-- "includes/diagram-forked.mmd"
 
-### Rules
+## Message creation
 
-- It is IMPERATIVE that it remains **append-only**. Participants can only add new elements, never ever change any prior ones (with few exceptions). This is in order to avoid conflicts altogether. *Any commit that changes history **must** be rejected.*
-- The referenced state node MUST be the same or newer than of the parent with the newest state node reference.
-- Changes must follow a set of rules in order to be accepted (sent by valid participant in the room, signed by sender, et cetera), though this isn't required for the MVP.
+Making a message means creating a new node with every current leaf as its parent. This naturally merges all leaves and collapses the DAG tips, you then trigger a *heartbeat* which will organically broadcast the node.
 
-### Conflict resolution
+## Heartbeat
 
-When a fork unavoidably happens (network momentarily splits in two, users send messages at the same time), we don't try to resolve it into a single unified timeline, instead we keep the timeline as a tree.
+The heartbeat is the mechanism with which sync is triggered: you broadcast an array of your current leaf hashes. For example, given this tree:
 
-We condense it into a "linear" timeline by choosing a branch based on a simple algorithm: we simply choose the longer side of the fork. Not because this is the "correct" side of history, but because it is simple. The other side will be collapsed behind a "thread-like" button.
+--8<-- "includes/diagram-leaves.mmd"
 
-In the case that there is a fork of branches with identical length, we will perform a simple tie-breaker: favor the branch who's first node has a lower alphanumeric hash. If the two hashes are equal, may God help us because they wouldn't even be different branches.
+Our hash would be the hashes of nodes 3B and 4B.
 
-The other, shorter side of the fork is simply collapsed into a thread (client-side). We don't want to put them both in a single timeline, because they just didn't happen in one.
+## Validation Chain
 
-In a nutshell: **determinism is king.**
+A room in Paroli does not inherently have rules. Rather, every requirement and safety guard for proposed nodes is centralized at the validation chain.
 
-|Scenario|Rule|
-|-|-|
-|Unequal branch lengths|Favor longer branch|
-|Equal branch lengths|Favor branch with lower hash|
+The validation chain is an ordered array of functions that a proposed node has to pass through top to bottom. Each validates a specific property. If any returns false, the chain stops and the node is rejected. Example: isDowngradingState() detects state downgrades.
 
-#### Message
-A message is just a new node appended to the latest one, in the `contents` field of the commit lives the actual message information in CBOR. For example:
+The vision is that the chain acts as a protocol-level gatekeeper that unifies every security feature into a centralized system. Though Paroli explicitly avoids imposing opinions about what's valid, a validation chain is specified by default in every room:
 
-```json
-// Example commit 97993ee036
-{
-    "type": "m.text",
-    "body": "Hello, world!",
-    "time": 1770908889
-}
-```
+1. `isDowngradingState`: If node is outside of the state tree and is referencing an older state relative to its parent, reject.
+2. `isSessionValid`: If the session's signature is not correct, reject.
+3. `isMembershipValid`: If the session is not a member of the room, reject.
+4. `doParentsIncludeDescendants`: If any of the specified parents in the node's parents array are descendants of other parents in the same array, reject.
+5. `isBlobValid`: Does it have the right structure? (requried fields, valid CBOR, etc.) If not, reject.
 
-##### Types
+In the future, the state node should define which validation steps are active and with what parameters. Rooms pick their own rules.
 
-###### m.text
-A simple plaintext (?) message.
+## Linearization
 
-####### Fields
+Forks are a natural and expected part of Paroli. When the network splits momentarily or two peers send messages simultaneously, the DAG branches. Paroli does not attempt to resolve forks into a single unified timeline; the branching structure is preserved as-is in the DAG.
+
+However, for display purposes and state conflict resolution, every implementation of `paroli-core-room` must provide a **linearized view** of the DAG. Linearization is a deterministic process that produces a consistent ordered timeline from a non-linear DAG. Because it is deterministic, every peer arrives at the same linearized view independently without coordination.
+
+### Branch Ordering
+
+When two or more branches exist, they are ordered by the following rules in priority order:
+
+1. **State recency:** The branch whose first diverging node references the most recent state DAG leaves is preferred.
+2. **Hash tiebreaker:** If two branches reference state of equal recency, the branch whose first diverging node has the lower alphanumeric hash is preferred.
+
+### Implications for State
+
+While linearization is primarily a display concern, it also serves as the conflict resolution mechanism for the state tree. If two branches set the same state property to different values (e.g. one sets the room title to "A" and another to "B"), the winning branch as determined by the ordering rules above defines the authoritative state. There is no separate conflict resolution algorithm for state, linearization handles it.
+
+## Types
+
+### m.text
+A simple plaintext message.
+
+#### Fields
 
 - `body`: The body of the text message.
-- `time`: The time (in Unix Epoch) that the message was sent.
 
-###### m.redact
+### m.redact
+Any good-intentioned clients
 
-**WARNING: OUT OF SCOPE FOR MVP**
+#### Fields
 
-- `hash`: The hash of the message we want to redact.
-
-##### Sending
-
-Below is an example of how a node would send a message, given a Gossip network:
-
-###### 1. Generation
-It all starts when one node (let's call it Node A) wants to send a message (add a new node), this could also be a heartbeat to show it’s still alive, or a new update it just pulled from another neighbor who has just made a change to the repository.
-
-###### 2. Selection (Gossip)
-Alice now has a different hash for its latest node, so now it is "infective." Instead of telling everyone at once (which would be full-mesh and expensive), Alice picks a small, random set of neighbors from her list.
-
-###### 3. Exchange
-Alice sends an IHAVE message to its neighbors with the hash of the latest node. The neighbors will compare their latest hash with the hash that Alice has provided.
-
-###### 4. Replication
-Bob's latest hash is HASH_D, which is different from Alice's latest hash. He checks if Alice's version of the timeline is newer or older (older would mean the node hash already exists in his message history). If Alice's timeline is newer, he will sync his timeline with Alice's.
-
-Refer to the **Synchronization** section.
-
-###### 5. Spread
-This is where the magic happens. Alice's neighbors now all have the message. In the next cycle, they themselves will each pick 3 random neighbors and share the message.
-
-Eventually, Alice's timeline will be replicated across every member of the room.
+- `hash`: The ID of the node we want to redact.

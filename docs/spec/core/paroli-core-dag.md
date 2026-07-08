@@ -29,13 +29,13 @@ Our implementation focuses on structural integrity while allowing for data priva
 It needs to:
 
 - Support multiple trees per instance, each identified by their respective root node's hash.
-- Be *strictly* append-only (with the exception of redaction).
+- Be *strictly* append-only (while still allowing for content redaction).
 - Keep nodes (cryptographic relationship) and blobs (event contents) separate.
 - Automatically perform verification of cryptographic integrity, among other things.
 
 ## Nodes & Blobs
 
-We maintain two distinct things: **nodes and blobs**. The nodes are the trees. These will be the actual Merkle DAGs, an the immutable skeleton of the instances. Meanwhile, the blobs are the contents of events.
+We maintain two distinct things: **nodes and blobs**. The nodes make *the trees*. These will be the actual Merkle DAGs, an the immutable skeleton of the instances. Meanwhile, the blobs are the contents of events.
 
 A node holds the following information:
 
@@ -44,16 +44,10 @@ A node holds the following information:
 - **content_ref**: The hash of the blob containing the event content.
 - **context_ref**: An optional commitment to a specific node in the DAG. A valid use could define logical validity (what must be true for this node to exist). It can ensure that the node cannot be replayed or interpreted under a different set of rules without changing its identity. For example: we may want a message in a timeline to have a reference to a specific point in the state so that peers can know which rules applied when the message was sent.
 
-A node may look like this:
-
-| hash | parents |  |
-|-|-|-|
-| blob_1 | "{ 'type': 'm.text', 'body': 'I\'m the first message!' }" |  |
-
 !!! note "Note on blob tables"
     The `blobs` table is a simple key-value store. It is not strictly append-only, but it is designed to be immutable. The `data` column is a CBOR object, while the `hash` column is a SHA256 hash of the `data` column, referenced by the nodes.
     
-    There is actually no need for different blobs tables to be used for each instance, you may share a single blobs table across all instances. However, we currently keep a blob table for each instance.
+    There is technically no need for different blobs tables to be used for each instance, you may share a single blobs table across all instances. However, we currently keep a blob table for each instance.
 
 !!! example
     An instance's nodes may look like this:

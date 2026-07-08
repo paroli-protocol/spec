@@ -14,7 +14,7 @@ A session is the cryptographic identity primitive of Paroli. It is the root of a
 
 ### What does it do?
 
-A session represents a single device or client instance capable of authoring and signing events. It is the atomic unit of identity in Paroli, higher level identity constructs (see `paroli-ext-identity`) are built on top of sessions, but on a lower level, the protocol itself only ever deals with sessions directly.
+A session represents a single device or client instance capable of authoring and signing events. It is the atomic unit of identity in Paroli, higher level identity constructs (see `paroli-ext-identity`) are built on top of sessions, but on a lower level, the protocol itself is only ever concerned with sessions.
 
 ### How does it do it?
 
