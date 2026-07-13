@@ -41,8 +41,8 @@ A node holds the following information:
 
 - **hash**: The hash of the node itself.
 - **parents**: The hashes of the parent nodes (remember: a node can have multiple parents).
-- **content_ref**: The hash of the blob containing the event content.
-- **context_ref**: An optional commitment to a specific node in the DAG. A valid use could define logical validity (what must be true for this node to exist). It can ensure that the node cannot be replayed or interpreted under a different set of rules without changing its identity. For example: we may want a message in a timeline to have a reference to a specific point in the state so that peers can know which rules applied when the message was sent.
+- **header**: The full CBOR object containing every element of the header. The header is unredactable and will be leveraged by users for essential data.
+- **body_ref**: The hash of the blob containing the event content, which is redactable.
 
 !!! note "Note on blob tables"
     The `blobs` table is a simple key-value store. It is not strictly append-only, but it is designed to be immutable. The `data` column is a CBOR object, while the `hash` column is a SHA256 hash of the `data` column, referenced by the nodes.
@@ -134,6 +134,8 @@ Appends a new node as the child of a specified set of nodes.
 - **parent_hashes**: A list of hashes, defining the parents of the node that is going to be appended.
 - **content**: The plaintext data that the node will be pointing to.
 - **context_ref**: An optional reference to another node.
+- **author**: An Ed25519 public key representing the author.
+- **author_sig**: An Ed25519 signature of the author.
 
 #### Returns
 

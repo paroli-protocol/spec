@@ -34,6 +34,13 @@ This approach makes Paroli mostly resistant to state-lag attacks, where an attac
 !!! example "Forked history (complex)"
     --8<-- "includes/diagram-forked.mmd"
 
+## Node structure
+
+### Header
+- **context_ref**: An optional commitment to a specific node in the DAG. In the context of a room, this is a reference to the latest nodes in the state tree.
+- **author**: An Ed25519 public key representing the author.
+- **author_sig**: An Ed25519 signature of the author.
+
 ## Message creation
 
 Making a message means creating a new node with every current leaf as its parent. This naturally merges all leaves and collapses the DAG tips, you then trigger a *heartbeat* which will organically broadcast the node.
